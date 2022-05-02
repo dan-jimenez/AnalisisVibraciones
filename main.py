@@ -1,3 +1,4 @@
+from re import A
 from tkinter import Tk, Frame, Button, Label, ttk, BooleanVar, IntVar, ACTIVE, DISABLED
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -24,13 +25,26 @@ class Grafico:
         self.frame = frame
 
     def fourier(self):
-        N = 600
-        T = 1 / 800
+        
 
         dataNP = self.data[self.columns[1]].to_numpy()
 
         y = scipy.fft.fft(dataNP)
-        x = np.linspace(0, 1 / (2 * T), N // 2)
+        y = y[3:-3]
+
+        if self.columns[1] == "mm/s":
+            N = 500
+            T = 1 / 1000
+            x = np.linspace(0,1/(2*T), N//2)
+        elif self.columns[1] == "g":
+            N = 2000
+            T = 1/4000
+            x = np.linspace(500, 1/(2*T), N//2)
+        else:
+            N = 10000
+            T = 1/20000
+            x = np.linspace(2000, 1/(2*T), N//2)
+
         x = x[:len(y)]
 
         if self.figure is not None:
@@ -87,8 +101,21 @@ class Grafico:
 
     def ocultar(self):
         self.canvas.get_tk_widget().destroy()
+class Verification(Frame):
+    def __init__(self, master=None):
+        self.master = master
+        self.master.title("Verificacion de usuario")
+        self.master.geometry("400x600")
+        self.master.configure(bg= "white")
+        super().__init__(master)
 
 
+    def initComponents(self):
+        self.configure(bg= "#3C4FA8")
+
+
+
+        
 class BigFrame(Frame):
     graficosTiempo = []
     graficosFourier = []
@@ -315,8 +342,6 @@ class BigFrame(Frame):
 
 
     def aplicarCambio(self):
-
-
         if self.fourier.get() == 1:
             if self.graficosFiltros[0].figureExist():
                 self.graficosFiltros[0].ocultar()
@@ -344,12 +369,18 @@ class BigFrame(Frame):
         self.graficosTiempo[positionX][positionY].open()
 
 
+
+
 if __name__ == "__main__":
     master = Tk()
-    # master.attributes('-fullscreen', True)
-
     master.geometry("1000x700")
     master.title('Pronostico vibracion')
     master.configure(bg="white")
     app = BigFrame(master)
     app.mainloop()
+
+
+    #main = Tk()
+    #ap = Verification(main)
+    #ap.mainloop()
+    
